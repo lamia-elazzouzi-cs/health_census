@@ -4,7 +4,7 @@ const btnSearch = document.getElementById('btnSearch');
 
 const patients = []; // to store the collected patient data
 
-
+// Populate patients[] with form data
 function addPatient() {
     // capture user-entered data from the form
     const name = document.getElementById("name").value;
@@ -22,6 +22,7 @@ function addPatient() {
     }
 }
 
+// Reset the form fields
 function resetForm() {
     // clear name, gender, age and condition fields
     document.getElementById("name").value = "";
@@ -30,6 +31,47 @@ function resetForm() {
     document.getElementById("condition").value = "";
 }
 
+// Search and retrieve health condition information based on user search
+function searchCondition() {
+    const searchInput = document.getElementById('conditionInput').value.toLowerCase();
+    const resultDiv = document.getElementById('result');
+
+    // clear previous content
+    resultDiv.innerHTML = '';
+
+    // initating a fetch request to the json file
+    fetch('health_analysis.json')
+        .then(response => response.json()) // convert response to json format
+        .then(data => {
+            // handle retrieved data
+            const condition = data.conditions.find(item => item.name.toLowerCase() === searchInput);
+
+            if (condition) {
+                // construct detailed display if medical condition found
+                const symptoms = condition.symptoms.join(', ');
+                const prevention = condition.prevention.join(', ');
+                const treatment = condition.treatment;
+
+                resultDiv.innerHTML += `<h2>${condition.name}</h2>`;
+                resultDiv.innerHTML += `<img src="${condition.imagesrc}" alt="hjh">`;
+
+                resultDiv.innerHTML += `<p><strong>Symptoms:</strong> ${symptoms}</p>`;
+                resultDiv.innerHTML += `<p><strong>Prevention:</strong> ${prevention}</p>`;
+                resultDiv.innerHTML += `<p><strong>Treatment:</strong> ${treatment}</p>`;
+
+            } else {
+                resultDiv.innerHTML += `Condition "${searchInput}" not found.`;
+
+            }
+        })
+        .catch(error => {
+            // handle any error that might occur during the fetch request
+            console.log("Error retrieving search result: ", error);
+            resultDiv.innerHTML += 'An error occurred while fetching data.';
+        });
+}
+
+// Dynamically generate Report Analysis HTML
 function generateReport() {
 
     // calculate and construct a report based on data in patients[]
@@ -83,3 +125,8 @@ function generateReport() {
 
 // adding an event listener for the "Add Patient" button
 addPatientButton.addEventListener("click", addPatient);
+
+// adding an event listener for the "Seach" button
+btnSearch.addEventListener("click", searchCondition);
+
+
